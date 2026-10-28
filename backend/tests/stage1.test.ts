@@ -27,11 +27,11 @@ const TEST_AUDIENCE = 'skillsprint-web-client.apps.googleusercontent.com';
 
 test('1. Admin Access: Allowlisted Admin gets admin status and is bound to stable Google sub', async () => {
   const store = new RegistrationStore({
-    ADMIN_EMAIL_ALLOWLIST: ADMIN_EMAIL,
+    ADMIN_EMAIL_ALLOWLIST: [ADMIN_EMAIL],
     GOOGLE_CLIENT_ID: TEST_AUDIENCE,
   });
   const auth = new AuthService(store, {
-    ADMIN_EMAIL_ALLOWLIST: ADMIN_EMAIL,
+    ADMIN_EMAIL_ALLOWLIST: [ADMIN_EMAIL],
     GOOGLE_CLIENT_ID: TEST_AUDIENCE,
   });
 
@@ -57,11 +57,11 @@ test('1. Admin Access: Allowlisted Admin gets admin status and is bound to stabl
 
 test('2. Token Security: Rejects forged signature, unverified email, and expired tokens', async () => {
   const store = new RegistrationStore({
-    ADMIN_EMAIL_ALLOWLIST: ADMIN_EMAIL,
+    ADMIN_EMAIL_ALLOWLIST: [ADMIN_EMAIL],
     GOOGLE_CLIENT_ID: TEST_AUDIENCE,
   });
   const auth = new AuthService(store, {
-    ADMIN_EMAIL_ALLOWLIST: ADMIN_EMAIL,
+    ADMIN_EMAIL_ALLOWLIST: [ADMIN_EMAIL],
     GOOGLE_CLIENT_ID: TEST_AUDIENCE,
   });
 
@@ -116,7 +116,7 @@ test('3. Atomic 800 Cap Under Concurrent Signups (with Staging Cap = 5)', async 
   const TEST_CAP = 5;
   const store = new RegistrationStore({
     REGISTRATION_CAP: TEST_CAP,
-    ADMIN_EMAIL_ALLOWLIST: ADMIN_EMAIL,
+    ADMIN_EMAIL_ALLOWLIST: [ADMIN_EMAIL],
   });
 
   // Concurrently attempt to register 20 users simultaneously

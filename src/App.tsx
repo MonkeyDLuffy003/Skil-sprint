@@ -27,7 +27,7 @@ import { generateDeterministicRomanisation } from '../backend/src/services/roman
 import { SM2Service } from '../backend/src/services/sm2.service';
 import { LearnEngineService, Exercise, Unit } from '../backend/src/services/learning.service';
 import { RecommendationService, RegionKey } from '../backend/src/services/recommendation.service';
-import { PracticeLabService } from '../backend/src/services/practice_lab.service';
+import { PracticeLabService, LISTENING_DRILLS, GRAMMAR_TIPS, GrammarTipItem } from '../backend/src/services/practice_lab.service';
 import { StreakFreezeService } from '../backend/src/services/streak_freeze.service';
 import {
   DialogueService,
@@ -107,6 +107,7 @@ import {
   Smartphone,
   Crown,
   CreditCard,
+  Snowflake,
 } from 'lucide-react';
 
 type Screen =
@@ -2098,7 +2099,7 @@ export default function App() {
                         <div className="text-xs font-bold text-stone-500 uppercase tracking-wider pl-1">
                           Contextual Grammar Rules ({currentLanguage.toUpperCase()})
                         </div>
-                        {tips.map((tip) => (
+                        {tips.map((tip: GrammarTipItem) => (
                           <div
                             key={tip.id}
                             className="p-4 rounded-3xl bg-white border border-stone-200 shadow-2xs space-y-2.5"
@@ -2114,7 +2115,7 @@ export default function App() {
                               Rule: {tip.keyRule}
                             </div>
                             <div className="space-y-1.5 pt-1">
-                              {tip.examples.map((ex, idx) => (
+                              {tip.examples.map((ex: { native: string; romanisation?: string; translation: string }, idx: number) => (
                                 <div key={idx} className="p-2 rounded-xl bg-stone-50 border border-stone-200/60 text-xs">
                                   <div className="font-bold text-stone-900">{ex.native}</div>
                                   {ex.romanisation && (
@@ -2617,7 +2618,7 @@ export default function App() {
                   {referralToast && (
                     <div className="p-3 rounded-2xl bg-stone-900 text-white text-xs font-bold flex items-center justify-between shadow-lg animate-fade-in">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-emerald-400" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                         <span>{referralToast}</span>
                       </div>
                       <button
