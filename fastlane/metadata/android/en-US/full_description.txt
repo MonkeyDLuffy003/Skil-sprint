@@ -1,0 +1,44 @@
+Sprint your way to language mastery with SkillSprint AI!
+
+SkillSprint AI is your intelligent, adaptive language learning companion designed for rapid fluency, long-term memory retention, and confident conversational skills. Whether you are learning Japanese, Spanish, French, German, or Mandarin, SkillSprint AI provides a personalized curriculum powered by cognitive science and smart linguistic models.
+
+🌟 MEET YOUR 4 ADAPTIVE COMPANIONS
+Choose your favorite mascot guide who accompanies your daily study sessions with unique coaching voices and encouragement:
+• Kaito the Kitsune Fox: Focused, agile, and swift.
+• Hina the Red Panda: Warm, encouraging, and detail-oriented.
+• Luna the Wise Owl: Analytical, grammar-focused, and thorough.
+• Felix the Street Cat: Casual, real-world slang, and street-smart phrases.
+
+🧠 SCIENTIFIC SM-2 SPACED REPETITION (SRS)
+Never forget vocabulary or grammar patterns again. Our implementation of the SuperMemo SM-2 algorithm dynamically calculates review intervals, ease factor adjustments, and optimal repetition cycles based on your performance across 7 distinct exercise types:
+• Multiple Choice Translation
+• Word Bank Sentence Reconstruction
+• Listening Comprehension & Transcription
+• Pronunciation Voice Matching
+• Fill-in-the-Blank Cloze Tests
+• Contextual Association
+• Rapid Speed Sprint Reviews
+
+🎙️ PRONUNCIATION LAB & VARIABLE SPEED PLAYBACK
+Train your ear and speech organs with precision:
+• Listen at 0.75x (slow), 1.0x (natural), and 1.25x (native conversation tempo).
+• Record your speech and receive real-time phoneme-by-phoneme accuracy scoring.
+• Full phonetic romanisation (Pinyin, Romaji, IPA) for non-Latin writing systems.
+
+🎭 IMMERSIVE CONVERSATIONAL ROLEPLAYS
+Step into realistic everyday scenarios with interactive, multi-turn AI dialogues:
+• Ordering breakfast in a bustling local café
+• Purchasing high-speed train tickets at the station
+• Bargaining fresh goods at a neighborhood market
+• Checking into a boutique hotel with special requests
+Each scenario evaluates your turns contextually and awards mastery stars and XP.
+
+🎁 REFERRAL REWARDS & THE MILESTONE SPIN WHEEL
+Invite your friends to study with you! Our anti-abuse referral engine unlocks the animated Spin Wheel at 5, 10, and 20 verified study milestones. Spin to win Streak Freezes, XP Boosters, and Pro Membership passes.
+
+🛡️ STREAK PROTECTION & GOOGLE PLAY SUBSCRIPTIONS
+Life happens! Safeguard your hard-earned study streaks with up to 2 active Streak Freezes. Upgrade to SkillSprint Pro seamlessly via Google Play Subscriptions for unlimited daily practice, offline audio downloads, and advanced roleplay scenarios.
+
+Privacy Policy: https://skillsprint.ai/privacy
+Terms of Service: https://skillsprint.ai/terms
+Support: support@skillsprint.ai

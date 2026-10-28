@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Learner and developer profile data in Firestore",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 255 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "photoURL": { "type": "string", "maxLength": 512 },
+        "provider": { "type": "string", "enum": ["google.com", "password"] },
+        "role": { "type": "string", "enum": ["learner", "developer"] },
+        "subscriptionStatus": { "type": "string", "enum": ["free", "premium"] },
+        "streakDays": { "type": "integer" },
+        "xp": { "type": "integer" },
+        "mascot": { "type": "string", "enum": ["foxy", "bunny", "panda", "kitty"] },
+        "gender": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "subscriptionStatus"]
+    },
+    "Admin": {
+      "title": "Admin Record",
+      "description": "Verified developer allowlist identity record",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 255 },
+        "googleSub": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email"]
+    },
+    "Waitlist": {
+      "title": "Waitlist Entry",
+      "description": "Learners queued when the 800 registration cap is met",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 255 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "position": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "position"]
+    },
+    "CapacitySettings": {
+      "title": "Capacity Control",
+      "description": "System-wide registration cap and slot tracking",
+      "type": "object",
+      "properties": {
+        "currentCount": { "type": "integer" },
+        "maxCap": { "type": "integer" },
+        "isPaused": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["currentCount", "maxCap", "isPaused"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles indexed by Firebase Auth UID"
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/Admin" },
+      "description": "Allowlisted developer credentials"
+    },
+    "/waitlist/{waitlistId}": {
+      "schema": { "$ref": "#/entities/Waitlist" },
+      "description": "Early access waitlist records"
+    },
+    "/system/capacity": {
+      "schema": { "$ref": "#/entities/CapacitySettings" },
+      "description": "Global atomic registration cap tracking"
+    }
+  }
+}

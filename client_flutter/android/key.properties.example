@@ -1,0 +1,8 @@
+# SkillSprint AI Production Release Keystore Configuration
+# Copy this file to key.properties and configure with production credentials
+# NEVER commit key.properties or .jks/.keystore files to version control!
+
+storePassword=SkillSprintSecurePass2026!
+keyPassword=SkillSprintSecurePass2026!
+keyAlias=skillsprint_release
+storeFile=../keystore/skillsprint_release.jks

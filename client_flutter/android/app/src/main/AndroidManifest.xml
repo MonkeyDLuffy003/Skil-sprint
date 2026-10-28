@@ -1,0 +1,65 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.skillsprint.ai">
+
+    <!-- Network permissions for AI translation, syncing, and learning packs -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <!-- Pronunciation Lab speech assessment -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+    <!-- Haptic feedback during gamified exercises and spin wheel -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
+    <!-- Google Play In-App Subscriptions & Purchases -->
+    <uses-permission android:name="com.android.vending.BILLING"/>
+
+    <!-- Android 13+ (API 33+) Streak Freeze and Daily Study Reminders -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <application
+        android:label="SkillSprint AI"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:allowBackup="true"
+        android:supportsRtl="true">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+              
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <!-- Deep linking for Referral links: skillsprint://referral?code=SPRINT-FOX-12345 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="skillsprint" android:host="referral" />
+            </intent-filter>
+        </activity>
+        
+        <!-- Google Play Billing Client service declaration -->
+        <meta-data
+            android:name="com.google.android.play.billingclient.version"
+            android:value="6.2.1" />
+
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+</manifest>

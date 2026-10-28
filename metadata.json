@@ -1,0 +1,6 @@
+{
+  "name": "SkillSprint AI",
+  "description": "Gamified language-learning app with smart translator, custom mascots, atomic registration cap, and real-time backend.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

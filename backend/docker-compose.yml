@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database with persistent volume
+  postgres:
+    image: postgres:16-alpine
+    container_name: skillsprint_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: skillsprint_db
+      POSTGRES_USER: skillsprint_user
+      POSTGRES_PASSWORD: skillsprint_secure_password_2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations/001_initial_stage1.sql:/docker-entrypoint-initdb.d/001_initial_stage1.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skillsprint_user -d skillsprint_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # SkillSprint AI Backend Service
+  backend:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    container_name: skillsprint_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://skillsprint_user:skillsprint_secure_password_2026@postgres:5432/skillsprint_db
+      REGISTRATION_CAP: 800
+      ADMIN_EMAIL_ALLOWLIST: manikantejaswarooparni@gmail.com
+      GOOGLE_CLIENT_ID: 118134570104-apps.googleusercontent.com
+      JWT_SECRET: super_secure_jwt_secret_skillsprint_ai_2026_prod
+    ports:
+      - "4000:4000"
+
+volumes:
+  postgres_data:
