@@ -84,17 +84,20 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   throw new Error(JSON.stringify(errInfo));
 }
 
-export async function testConnection() {
+export async function testConnection(): Promise<boolean> {
   try {
-    await getDocFromServer(doc(db, 'system', 'capacity'));
+    const snap = await getDoc(doc(db, 'system', 'capacity'));
+    return snap.exists();
   } catch (error) {
     if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn('Firebase client is offline. Please check your network connection.');
+      console.warn('Firebase client is operating in offline mode.');
+    } else {
+      console.warn('Firebase connection notice:', error instanceof Error ? error.message : error);
     }
+    return false;
   }
 }
 
-testConnection();
 
 export {
   signInWithPopup,

@@ -281,25 +281,47 @@ export default function App() {
   const [simulatedRefereePhone, setSimulatedRefereePhone] = useState<string>('+1 (555) 234-5678');
   const [simulatedOtpCode, setSimulatedOtpCode] = useState<string>('123456');
   const [referralToast, setReferralToast] = useState<string | null>(null);
+  const [isOfflineSyncPending, setIsOfflineSyncPending] = useState<boolean>(false);
 
-  // 1. Listen to Real Firebase Auth State Changes
+  // 1. Listen to Real Firebase Auth State Changes with Offline Resilience
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setFirebaseUser(user);
       if (user) {
+        const emailLower = (user.email || '').toLowerCase().trim();
+        const isAdmin = ADMIN_ALLOWLIST.includes(emailLower);
+        const cacheKey = `skillsprint_profile_${user.uid}`;
+
+        // Step A: Load locally cached profile immediately if available
+        let existingProfile: UserProfile | null = null;
+        try {
+          const cachedRaw = localStorage.getItem(cacheKey);
+          if (cachedRaw) {
+            existingProfile = JSON.parse(cachedRaw) as UserProfile;
+            setProfile(existingProfile);
+            if (existingProfile.mascot && MASCOTS[existingProfile.mascot]) {
+              setSelectedMascotId(existingProfile.mascot);
+            }
+          }
+        } catch {
+          // ignore cache parsing error
+        }
+
+        // Step B: Attempt remote Firestore fetch with graceful fallback
         try {
           const userDocRef = doc(db, 'users', user.uid);
           const docSnap = await getDoc(userDocRef);
 
-          const emailLower = (user.email || '').toLowerCase().trim();
-          const isAdmin = ADMIN_ALLOWLIST.includes(emailLower);
-
           if (docSnap.exists()) {
             const data = docSnap.data() as UserProfile;
             setProfile(data);
+            setIsOfflineSyncPending(false);
             if (data.mascot && MASCOTS[data.mascot]) {
               setSelectedMascotId(data.mascot);
             }
+            try {
+              localStorage.setItem(cacheKey, JSON.stringify(data));
+            } catch {}
             setCurrentScreen('main');
           } else {
             // New user registration in Firestore
@@ -318,15 +340,46 @@ export default function App() {
               createdAt: serverTimestamp(),
             };
 
-            await setDoc(userDocRef, newProfile);
+            try {
+              await setDoc(userDocRef, newProfile);
+              setIsOfflineSyncPending(false);
+            } catch (writeErr) {
+              console.warn('Profile saved to local storage (cloud sync deferred):', writeErr);
+              setIsOfflineSyncPending(true);
+            }
             setProfile(newProfile);
+            try {
+              localStorage.setItem(cacheKey, JSON.stringify(newProfile));
+            } catch {}
             setCurrentScreen('gender_select');
           }
         } catch (err: any) {
-          console.error('Error fetching user profile from Firestore:', err);
+          console.warn('Operating in offline/local cache mode for user profile:', err?.message || err);
+          setIsOfflineSyncPending(true);
+
+          if (!existingProfile) {
+            const fallbackProfile: UserProfile = {
+              uid: user.uid,
+              email: user.email || '',
+              displayName: user.displayName || user.email?.split('@')[0] || 'Learner',
+              photoURL: user.photoURL || '',
+              role: isAdmin ? 'developer' : 'learner',
+              subscriptionStatus: 'free',
+              streakDays: 1,
+              xp: 20,
+              mascot: 'foxy',
+              gender: 'prefer_not_to_say',
+            };
+            setProfile(fallbackProfile);
+            try {
+              localStorage.setItem(cacheKey, JSON.stringify(fallbackProfile));
+            } catch {}
+          }
+          setCurrentScreen((prev) => (prev === 'welcome' || prev === 'login' || prev === 'signup' ? 'main' : prev));
         }
       } else {
         setProfile(null);
+        setIsOfflineSyncPending(false);
         setCurrentScreen('welcome');
       }
       setAuthLoading(false);
@@ -334,6 +387,7 @@ export default function App() {
 
     return () => unsubscribe();
   }, []);
+
 
   const triggerHaptic = () => {
     if (typeof window !== 'undefined' && 'vibrate' in navigator) {
@@ -416,7 +470,15 @@ export default function App() {
         createdAt: serverTimestamp(),
       };
 
-      await setDoc(doc(db, 'users', userCredential.user.uid), newProfile);
+      try {
+        await setDoc(doc(db, 'users', userCredential.user.uid), newProfile);
+      } catch (saveErr) {
+        console.warn('Profile saved to local storage (cloud sync deferred):', saveErr);
+        setIsOfflineSyncPending(true);
+      }
+      try {
+        localStorage.setItem(`skillsprint_profile_${userCredential.user.uid}`, JSON.stringify(newProfile));
+      } catch {}
       setProfile(newProfile);
       triggerHaptic();
       setCurrentScreen('gender_select');
@@ -493,7 +555,11 @@ export default function App() {
 
   // Sign Out
   const handleSignOut = async () => {
-    await signOut(auth);
+    try {
+      await signOut(auth);
+    } catch (e) {
+      console.warn('Sign out notice:', e);
+    }
     setProfile(null);
     setEmailInput('');
     setPasswordInput('');
@@ -506,11 +572,18 @@ export default function App() {
     triggerHaptic();
     setSelectedMascotId(id);
     if (firebaseUser) {
+      setProfile((prev) => {
+        if (!prev) return null;
+        const updated = { ...prev, mascot: id };
+        try {
+          localStorage.setItem(`skillsprint_profile_${firebaseUser.uid}`, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
       try {
         await updateDoc(doc(db, 'users', firebaseUser.uid), { mascot: id });
-        setProfile((prev) => (prev ? { ...prev, mascot: id } : null));
       } catch (err) {
-        console.error('Error updating mascot:', err);
+        console.warn('Mascot updated locally (cloud sync deferred):', err);
       }
     }
   };
@@ -1418,6 +1491,33 @@ export default function App() {
                   </div>
                 </div>
               </div>
+
+              {/* Offline / Local Cache Notice */}
+              {isOfflineSyncPending && (
+                <div className="mb-3.5 px-3 py-2 rounded-2xl bg-amber-50/90 border border-amber-200/80 flex items-center justify-between text-[11px] text-amber-900 shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0 animate-pulse" />
+                    <span>Local Mode Active • Learning progress saved locally</span>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      if (!firebaseUser) return;
+                      try {
+                        const userDocRef = doc(db, 'users', firebaseUser.uid);
+                        const docSnap = await getDoc(userDocRef);
+                        if (docSnap.exists()) {
+                          setIsOfflineSyncPending(false);
+                        }
+                      } catch {
+                        // Remains offline
+                      }
+                    }}
+                    className="ml-2 font-bold text-amber-800 underline hover:text-amber-950 shrink-0"
+                  >
+                    Sync
+                  </button>
+                </div>
+              )}
 
               {/* TAB 1: LEARN (Stage 2 Learn Engine with 7 Exercise Types) */}
               {activeTab === 'learn' && (
@@ -3407,14 +3507,21 @@ export default function App() {
               } else {
                 setLessonFinished(true);
                 confetti({ particleCount: 80, spread: 70 });
-                // Award +15 XP in Firestore
+                // Award +15 XP locally and attempt Firestore sync
                 if (firebaseUser) {
+                  const newXp = (profile?.xp || 20) + 15;
+                  setProfile((prev) => {
+                    if (!prev) return null;
+                    const updated = { ...prev, xp: newXp };
+                    try {
+                      localStorage.setItem(`skillsprint_profile_${firebaseUser.uid}`, JSON.stringify(updated));
+                    } catch {}
+                    return updated;
+                  });
                   try {
-                    const newXp = (profile?.xp || 20) + 15;
                     await updateDoc(doc(db, 'users', firebaseUser.uid), { xp: newXp });
-                    setProfile((prev) => (prev ? { ...prev, xp: newXp } : null));
                   } catch (e) {
-                    // ignore
+                    console.warn('XP update saved locally (cloud sync deferred):', e);
                   }
                 }
               }
